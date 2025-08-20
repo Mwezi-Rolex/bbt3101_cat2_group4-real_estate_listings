@@ -11,85 +11,217 @@
 ---
 
 ## Project Overview
-This project is a **Django REST Framework API** for managing real estate property listings.  
-It allows for the creation, retrieval, update, and deletion of data related to properties, agents, clients, images, and bookings.
+This is a **Real Estate Listings API** built with Django and Django REST Framework (DRF).  
+The API allows management of clients, property types, properties, property images, agents, and bookings.  
+It is secured with token-based authentication and provides CRUD operations for all resources.
+
 
 ---
 
-## Step-by-Step Implementation (So Far)
+## Step-by-Step Implementation 
 
-### 1. Models
-We have defined **five models** to represent the main entities in a real estate listing system:
+## Models and Relationships
 
-1. **Agent** – Stores agent details such as name, email, phone, agency, and license number.  
-2. **Property** – Represents real estate listings with title, description, price, location, type, size, and the agent assigned to it.  
-3. **PropertyImage** – Stores images for each property, linked via a foreign key.  
-4. **Client** – Represents potential customers who may inquire or book properties.  
-5. **Booking** – Records inquiries/bookings made by clients for specific properties, including messages, date sent, and booking status.
+### 1. **Client**
+- Represents customers looking for properties.  
+- Fields: `name`, `email`, `phone`.  
+- A client can make multiple bookings.
 
-**Relationships:**
-- One **Agent** can have many **Properties** (`One-to-Many`).  
-- One **Property** can have many **PropertyImages** (`One-to-Many`).  
-- One **Client** can make many **Bookings** (`One-to-Many`).  
-- Each **Booking** is linked to one **Property** and one **Client**.
+### 2. **Agent**
+- Represents property agents working under an agency.  
+- Fields: `name`, `email`, `phone`, `agency`, `license_number`.  
+- Agents can be linked to multiple properties.
 
----
+### 3. **PropertyType**
+- Defines the type of property.  
+- Fields: `name` (e.g., *Apartment, Villa, Office*).  
+- Each property must belong to one property type.
 
-### 2. Serializers
-Serializers were created for each model to transform model data into JSON and vice versa.  
-- **AgentSerializer** – Serializes agent data.  
-- **PropertySerializer** – Includes nested `PropertyImageSerializer` to return property images along with property data.  
-- **PropertyImageSerializer** – Serializes property image details.  
-- **ClientSerializer** – Serializes client details.  
-- **BookingSerializer** – Serializes booking details.
+### 4. **Property**
+- Represents the actual properties available.  
+- Fields: `title`, `description`, `price`, `location`, `listed_date`.  
+- Relationships: 
+  - Linked to **PropertyType** (one-to-many).
+  - Linked to **Agent** (one-to-many).
+  - Linked to **PropertyImage** (one-to-many).
+  - Linked to **Booking** (one-to-many).
 
-**Validation Rules Implemented So Far:**  
-Currently, default DRF `ModelSerializer` validation is used (required fields, correct field types, unique constraints from models).
+### 5. **PropertyImage**
+- Stores images of a property.  
+- Fields: `property`, `image_url`.  
+- Relationship: One property can have multiple images.
 
----
-
-### 3. Views/Viewsets
-We implemented **ModelViewSets** for each model to provide CRUD operations automatically:  
-- `AgentViewSet` – Manage agents.  
-- `PropertyViewSet` – Manage property listings.  
-- `PropertyImageViewSet` – Manage property images.  
-- `ClientViewSet` – Manage client records.  
-- `BookingViewSet` – Manage bookings.  
-
-Each viewset supports:
-- `GET` (list and retrieve)
-- `POST` (create)
-- `PUT/PATCH` (update)
-- `DELETE` (remove)
+### 6. **Booking**
+- Represents client bookings for a property.  
+- Fields: `client`, `property`, `message`, `status`, `booking_date`.  
+- Relationships: 
+  - Linked to **Client** (many-to-one).
+  - Linked to **Property** (many-to-one).
+- Validation: A client cannot book the same property more than once.
 
 ---
 
-### 4. URLs
-We used Django REST Framework’s `DefaultRouter` to generate RESTful endpoints automatically:
-- `/api/agents/` – Manage agents  
-- `/api/properties/` – Manage properties  
-- `/api/property-images/` – Manage property images  
-- `/api/clients/` – Manage clients  
-- `/api/bookings/` – Manage bookings  
-
-In the main project `urls.py`, all app routes are included under the `/api/` prefix.
-
----
-
-## Current Status
-✅ Models created with relationships  
-✅ Serializers implemented  
-✅ CRUD Viewsets implemented  
-✅ URL routing configured  
-⬜ Testing (Postman/Django tests) – **pending**  
-⬜ Documentation of test results – **pending**  
+## Views / ViewSets
+- **ModelViewSets** are used for each model (`Client`, `Agent`, `PropertyType`, `Property`, `PropertyImage`, `Booking`).  
+- They provide CRUD operations:  
+  - `GET` → Retrieve list/detail  
+  - `POST` → Create new entries  
+  - `PUT/PATCH` → Update existing entries  
+  - `DELETE` → Remove entries  
+- Custom validation ensures unique booking per client-property pair.
 
 ---
 
-## Next Steps
-1. Implement custom validation rules (e.g., positive price, valid booking dates).
-2. Add permission controls for agents and clients.
-3. Test API endpoints using Postman and document results.
-4. Finalize README with test evidence.
+## Serializers
+- Each model has a corresponding **Serializer** that:
+  - Defines exposed fields.  
+  - Applies validation rules (e.g., booking uniqueness, required fields).  
+  - Converts model instances to JSON and vice versa.
 
 ---
+
+## URL Patterns
+All endpoints are prefixed with `/api/`:
+- `/api/clients/` → CRUD for clients  
+- `/api/agents/` → CRUD for agents  
+- `/api/property-types/` → CRUD for property types  
+- `/api/properties/` → CRUD for properties  
+- `/api/property-images/` → CRUD for property images  
+- `/api/bookings/` → CRUD for bookings  
+- `/api/auth/` → Authentication routes (login, token)
+
+---
+
+## Testing
+
+We tested using **Postman** for all major endpoints.
+
+### Clients
+- **POST** `/api/clients/`
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "1234567890"
+}
+
+GET /api/clients/
+
+PUT /api/clients/1/
+
+DELETE /api/clients/1/
+
+Agents
+
+POST /api/agents/
+
+{
+  "name": "Jane Smith",
+  "email": "jane@agency.com",
+  "phone": "9876543210",
+  "agency": "DreamHomes Ltd",
+  "license_number": "AG12345"
+}
+
+Property Types
+
+POST /api/property-types/
+
+{ "name": "Apartment" }
+
+Properties
+
+POST /api/properties/
+
+{
+  "title": "Luxury Apartment",
+  "description": "Spacious 3-bedroom apartment.",
+  "price": "5000000",
+  "location": "Nairobi",
+  "property_type": 1,
+  "agent": 1,
+  "listed_date": "2025-08-20"
+}
+
+Property Images
+
+POST /api/property-images/
+
+{
+  "property": 1,
+  "image_url": "https://example.com/apartment1.jpg"
+}
+
+Bookings
+
+POST /api/bookings/
+
+{
+  "client": 1,
+  "property": 2,
+  "message": "Interested in this property for next month.",
+  "status": "Confirmed",
+  "booking_date": "2025-08-25"
+}
+
+Evidence of Tests
+
+All endpoints tested successfully in Postman.
+
+Sample test results:
+
+201 Created on valid POST requests.
+
+200 OK on GET requests.
+
+400 Bad Request on invalid data (e.g., missing required fields).
+
+403 Forbidden when no authentication token is provided.
+
+204 No Content on successful DELETE requests.
+
+(Screenshots of Postman results should be attached here in the final submission.)
+
+How to Run the Project
+
+Clone the repository:
+
+git clone <repo-url>
+cd real-estate-api
+
+
+Create and activate a virtual environment:
+
+python -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+
+Run migrations:
+
+python manage.py makemigrations
+python manage.py migrate
+
+
+Create a superuser:
+
+python manage.py createsuperuser
+
+
+Start the development server:
+
+python manage.py runserver
+
+
+Test endpoints via Postman at:
+
+http://127.0.0.1:8000/api/
+
+Conclusion
+
+This project implements a Real Estate Listings API with full CRUD support, authentication, and validation rules.
+It provides a robust foundation for building a real estate management system with future extensions like search, filters, and user roles.
