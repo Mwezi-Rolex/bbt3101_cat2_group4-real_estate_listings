@@ -81,14 +81,14 @@ It is secured with token-based authentication and provides CRUD operations for a
 ---
 
 ## URL Patterns
-All endpoints are prefixed with `/api/`:
-- `/api/clients/` → CRUD for clients  
-- `/api/agents/` → CRUD for agents  
-- `/api/property-types/` → CRUD for property types  
-- `/api/properties/` → CRUD for properties  
-- `/api/property-images/` → CRUD for property images  
-- `/api/bookings/` → CRUD for bookings  
-- `/api/auth/` → Authentication routes (login, token)
+All endpoints are prefixed with `/api/v1/`:
+- `/api/v1/clients/` → CRUD for clients  
+- `/api/v1/agents/` → CRUD for agents  
+- `/api/v1/property-types/` → CRUD for property types  
+- `/api/v1/properties/` → CRUD for properties  
+- `/api/v1/property-images/` → CRUD for property images  
+- `/api/v1/bookings/` → CRUD for bookings  
+- `/api/v1/auth/` → Authentication routes (login, token)
 
 ---
 
@@ -97,23 +97,22 @@ All endpoints are prefixed with `/api/`:
 We tested using **Postman** for all major endpoints.
 
 ### Clients
-- **POST** `/api/clients/`
+- **POST** `/api/v1/clients/`
 ```json
 {
   "name": "John Doe",
   "email": "john@example.com",
   "phone": "1234567890"
 }
+GET /api/v1/clients/
 
-GET /api/clients/
+PUT /api/v1/clients/1/
 
-PUT /api/clients/1/
-
-DELETE /api/clients/1/
+DELETE /api/v1/clients/1/
 
 Agents
 
-POST /api/agents/
+POST /api/v1/agents/
 
 {
   "name": "Jane Smith",
@@ -125,13 +124,13 @@ POST /api/agents/
 
 Property Types
 
-POST /api/property-types/
+POST /api/v1/property-types/
 
 { "name": "Apartment" }
 
 Properties
 
-POST /api/properties/
+POST /api/v1/properties/
 
 {
   "title": "Luxury Apartment",
@@ -145,7 +144,7 @@ POST /api/properties/
 
 Property Images
 
-POST /api/property-images/
+POST /api/v1/property-images/
 
 {
   "property": 1,
@@ -154,7 +153,7 @@ POST /api/property-images/
 
 Bookings
 
-POST /api/bookings/
+POST /api/v1/bookings/
 
 {
   "client": 1,
